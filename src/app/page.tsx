@@ -17,6 +17,11 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
+    fetch(`http://localhost:8000/todos`)
+      .then(res => res.json())
+      .then(data => setTasks(data));
+  }, []);
+  useEffect(() => {
     if (modalOpen && inputRef.current) {
       inputRef.current.focus();
     }
@@ -25,13 +30,16 @@ export default function Home() {
     }
   }, [modalOpen, editModalOpen]);
 
-  const createTask = (title: string) => {
-    const newTask = {
-      id: crypto.randomUUID(),
-      title,
-      completed: false,
-    };
-    setTasks([...tasks, newTask]);
+  const createTask = async (title: string) => {
+    const res = await fetch(`http://localhost:8000/todos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ title }),
+    });
+    const createdTask = await res.json();
+    setTasks([...tasks, createdTask]);
   };
 
   const deleteTask = (id: string) => {

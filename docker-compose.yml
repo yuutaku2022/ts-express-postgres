@@ -1,0 +1,51 @@
+services:
+  host-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - WATCHPACK_POLLING=true
+    stdin_open: true
+    tty: true
+    command: ["npm", "run", "dev"]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - WATCHPACK_POLLING=true
+      - DATABASE_URL=postgresql://postgres:password@db:5432/todo_db
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+    command: ["npm", "run", "dev"]
+  
+  db:
+    image: postgres:17
+    container_name: postgres-db
+    restart: always
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: todo_db
+    
+    ports:
+      - "5432:5432"
+    
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
+      

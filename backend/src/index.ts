@@ -1,30 +1,30 @@
 import express, { type Express, type Request, type Response } from "express";
-import { Pool } from "pg";
+import { getTodos, type Todo } from "./db/todo.js";
 
 const port = 8000;
 
 const app: Express = express();
-const pool = new Pool({
-	connectionString: process.env.DATABASE_URL
-})
 
 
 app.get('/', async (req: Request, res: Response) => {
 	try {
-		const result = await pool.query('SELECT NOW()');
-		res.send(`Hello World! DB Time: ${result.rows[0].now}`);
+		res.send('Hello World! Todo API is ready.');
 	} catch(error) {
 		console.error(error);
 		res.status(500).send('Internal Server Error');
 	}
 });
 
-app.listen(port, async () => {
-	console.log('Server is running on port ' + port);
+app.get('/todos', async (req: Request, res: Response) => {
 	try {
-		await pool.query('SELECT 1');
-		console.log('Database connection successful');
+		const todos: Todo[] = await getTodos();
+		res.json(todos);
 	} catch(error) {
 		console.error('Database connection failed:', error);
+		res.status(500).send('Internal Server Error');
 	}
+});
+
+app.listen(port, () => {
+	console.log(`Server is running at http://localhost:${port}`);
 })

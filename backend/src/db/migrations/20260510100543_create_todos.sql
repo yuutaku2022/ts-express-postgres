@@ -1,0 +1,7 @@
+-- migration: create_todos
+CREATE TABLE IF NOT EXISTS todos (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  completed BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

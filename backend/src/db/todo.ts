@@ -26,3 +26,13 @@ export async function createTodo(title: string): Promise<Todo> {
 
 	return result.rows[0];
 }
+
+export async function updateTodo(id: string, title: string): Promise<Todo> {
+	const result = await pool.query<Todo>("UPDATE todos SET title = $1 WHERE id = $2 RETURNING *", [title, id]);
+
+	if (!result.rows[0]) {
+		throw new Error("failed to create todo");
+	}
+
+	return result.rows[0];
+}

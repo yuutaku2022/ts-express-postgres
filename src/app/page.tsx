@@ -16,11 +16,13 @@ export default function Home() {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     fetch(`http://localhost:8000/todos`)
       .then(res => res.json())
       .then(data => setTasks(data));
   }, []);
+  
   useEffect(() => {
     if (modalOpen && inputRef.current) {
       inputRef.current.focus();
@@ -46,8 +48,16 @@ export default function Home() {
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  const updateTask = (id: string, title: string) => {
-    setTasks((prev) => prev.map((task) => task.id === id ? { ...task, title} : task));
+  const updateTask = async (id: string, title: string) => {
+    const res = await fetch(`http://localhost:8000/todos/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ title }),
+    })
+    const editedTask = await res.json();
+    setTasks(tasks.map((task) => task.id === id ? editedTask : task));
   }
 
   return (
